@@ -23,7 +23,7 @@ class Tetris {
         
         // Soft drop timing
         this.softDropCounter = 0;
-        this.softDropInterval = 100; // Slower soft drop (was much faster)
+        this.softDropInterval = 50; // Slower soft drop (was much faster)
         
         this.init();
     }
@@ -229,16 +229,20 @@ class Tetris {
         this.paused = !this.paused;
         const pauseScreen = document.getElementById('pauseScreen');
         const pauseBtn = document.getElementById('pauseBtn');
-        
+
         if (this.paused) {
             pauseScreen.style.display = 'block';
             pauseBtn.textContent = 'Resume (P)';
+            cancelAnimationFrame(this.lastFrame); // Stop animation
         } else {
             pauseScreen.style.display = 'none';
             pauseBtn.textContent = 'Pause (P)';
+            this.dropCounter = 0;
+            this.softDropCounter = 0;
+            this.lastUpdate = performance.now(); // Reset time tracking
+            this.lastFrame = requestAnimationFrame(() => this.gameLoop());
         }
     }
-
     draw() {
         // Clear canvas
         this.ctx.fillStyle = '#000';
@@ -338,31 +342,38 @@ class Tetris {
         document.getElementById('lines').textContent = this.lines;
         document.getElementById('level').textContent = this.level;
     }
-
-    gameLoop() {
-        if (this.gameOver || this.paused) return;
-        
-        this.dropCounter += 16;
-        this.softDropCounter += 16;
-        
-        // Handle soft drop with controlled speed
-        if (this.keys['ArrowDown'] && this.softDropCounter > this.softDropInterval) {
-            if (this.move(0, 1)) {
-                this.score += 1;
-            }
-            this.softDropCounter = 0;
-        }
-        
-        // Normal drop
-        if (!this.keys['ArrowDown'] && this.dropCounter > this.dropInterval) {
-            this.move(0, 1);
-            this.dropCounter = 0;
-        }
-        
-        this.draw();
-        this.updateDisplay();
-        requestAnimationFrame(() => this.gameLoop());
+gameLoop() {
+    if (this.gameOver) return;
+    if (this.paused) {
+        this.lastFrame = requestAnimationFrame(() => this.gameLoop());
+        return;
     }
+
+    const now = performance.now();
+    const delta = now - (this.lastUpdate || now);
+    this.lastUpdate = now;
+
+    this.dropCounter += delta;
+    this.softDropCounter += delta;
+
+    // Soft drop
+    if (this.keys['ArrowDown'] && this.softDropCounter > this.softDropInterval) {
+        if (this.move(0, 1)) {
+            this.score += 1;
+        }
+        this.softDropCounter = 0;
+    }
+
+    // Regular drop
+    if (!this.keys['ArrowDown'] && this.dropCounter > this.dropInterval) {
+        this.move(0, 1);
+        this.dropCounter = 0;
+    }
+
+    this.draw();
+    this.updateDisplay();
+    this.lastFrame = requestAnimationFrame(() => this.gameLoop());
+}
 
     bindEvents() {
         document.addEventListener('keydown', (e) => {
