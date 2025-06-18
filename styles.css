@@ -10,10 +10,27 @@ body {
     min-height: 100vh;
 }
 
-.game-container {
+/* === Layout === */
+.game-wrapper {
     display: flex;
-    gap: 20px;
+    gap: 40px;
     align-items: flex-start;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar.left {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.sidebar.right {
+    align-items: flex-start;
+    text-align: left;
 }
 
 canvas {
@@ -21,19 +38,10 @@ canvas {
     background: #000;
 }
 
-.info {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.next-piece, .hold-piece {
-    border: 2px solid #fff;
-    background: #000;
-}
-
+/* === Game Info === */
 .score {
     font-size: 18px;
+    line-height: 1.6;
 }
 
 .controls {
@@ -41,6 +49,7 @@ canvas {
     line-height: 1.5;
 }
 
+/* === Buttons === */
 .pause-button {
     background: #444;
     color: white;
@@ -50,6 +59,7 @@ canvas {
     font-size: 14px;
     border-radius: 5px;
     transition: background-color 0.2s;
+    margin-top: 10px;
 }
 
 .pause-button:hover {
@@ -60,12 +70,14 @@ canvas {
     background: #333;
 }
 
-.game-over, .pause-screen {
+/* === Overlays === */
+.game-over,
+.pause-screen {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.9);
+    background: rgba(0, 0, 0, 0.9);
     padding: 30px;
     border: 2px solid #fff;
     text-align: center;
@@ -74,12 +86,13 @@ canvas {
     z-index: 1000;
 }
 
-.game-over h2, .pause-screen h2 {
+.game-over h2,
+.pause-screen h2 {
     margin-top: 0;
     color: #fff;
 }
 
-/* Grid styling for game board */
+/* === Game Grid === */
 #gameCanvas {
     background-image: 
         linear-gradient(to right, #333 1px, transparent 1px),
@@ -87,7 +100,7 @@ canvas {
     background-size: 30px 30px;
 }
 
-/*start menu */
+/* === Start Screen === */
 .start-overlay {
     position: fixed;
     top: 0;
@@ -114,4 +127,11 @@ canvas {
     border: 2px solid white;
     color: white;
     border-radius: 8px;
+}
+
+/* === Next & Hold Canvases === */
+#nextCanvas,
+#holdCanvas {
+    background: #000;
+    border: 2px solid #fff;
 }

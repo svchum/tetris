@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tetris Game</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <!-- Start Screen Overlay -->
@@ -15,21 +15,15 @@
     </div>
   </div>
 
-  <div class="game-container">
-    <canvas id="gameCanvas" width="300" height="600"></canvas>
-    <div class="info">
+  <!-- Main Game Wrapper -->
+  <div class="game-wrapper">
+    <!-- Left Sidebar -->
+    <div class="sidebar left">
       <div class="score">
         <div>Score: <span id="score">0</span></div>
         <div>Lines: <span id="lines">0</span></div>
         <div>Level: <span id="level">1</span></div>
-      </div>
-      <div>
-        <div>Next:</div>
-        <canvas id="nextCanvas" width="120" height="400"></canvas>
-      </div>
-      <div>
-        <div>Hold:</div>
-        <canvas id="holdCanvas" width="120" height="120"></canvas>
+        <div>Time: <span id="time">0</span>s</div>
       </div>
       <div class="controls">
         <div><strong>Controls:</strong></div>
@@ -43,19 +37,37 @@
       </div>
       <button id="pauseBtn" class="pause-button">Pause (P)</button>
     </div>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" width="300" height="600"></canvas>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar right">
+      <div>
+        <div>Next:</div>
+        <canvas id="nextCanvas" width="120" height="360"></canvas>
+      </div>
+      <div>
+        <div>Hold:</div>
+        <canvas id="holdCanvas" width="120" height="120"></canvas>
+      </div>
+    </div>
   </div>
 
+  <!-- Game Over Popup -->
   <div class="game-over" id="gameOver">
     <h2>Game Over!</h2>
     <p>Final Score: <span id="finalScore">0</span></p>
     <p>Press R to restart</p>
   </div>
 
+  <!-- Pause Screen -->
   <div class="pause-screen" id="pauseScreen">
     <h2>Game Paused</h2>
     <p>Press P to resume</p>
   </div>
 
+  <!-- Game Scripts -->
   <script src="tetrominoes.js"></script>
   <script src="Tetris.js"></script>
   <script src="main.js"></script>

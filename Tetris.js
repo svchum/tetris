@@ -37,6 +37,8 @@ class Tetris {
         this.dropCounter = 0;
         this.dropInterval = 1000;
         this.lastTime = 0;
+        this.gameStartTime = 0;
+
         
         // Game state
         this.gameOver = false;
@@ -67,6 +69,8 @@ class Tetris {
         
         // Start game loop
         this.gameLoop();
+
+        this.gameStartTime = performance.now();
     }
 
     // === PIECE GENERATION (Classic Randomizer) ===
@@ -418,6 +422,9 @@ class Tetris {
         document.getElementById('score').textContent = this.score;
         document.getElementById('lines').textContent = this.lines;
         document.getElementById('level').textContent = this.level;
+
+        const secondsElapsed = Math.floor((performance.now() - this.gameStartTime) / 1000);
+        document.getElementById('time').textContent = secondsElapsed;
     }
 
     showGameOver() {
