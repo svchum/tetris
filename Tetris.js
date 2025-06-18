@@ -33,12 +33,23 @@ class Tetris {
         this.lines = 0;
         this.level = 1;
         
-        // Timing
+        // Timing - Updated with level-based gravity
         this.dropCounter = 0;
-        this.dropInterval = 1000;
+        this.dropInterval = this.getDropInterval(1); // Start with level 1
         this.lastTime = 0;
         this.gameStartTime = 0;
 
+        // Lock delay system
+        this.lockDelayTimer = 0;
+        this.lockDelayDuration = 500; // 0.5 seconds in milliseconds
+        this.lockDelayActive = false;
+        this.lockDelayMoves = 0;
+        this.maxLockDelayMoves = 15;
+        this.isGrounded = false;
+
+        // Scoring system
+        this.combo = 0;
+        this.backToBackDifficult = false;
         
         // Game state
         this.gameOver = false;
@@ -54,6 +65,31 @@ class Tetris {
         this.moveDelay = 100;
         this.lastDropTime = 0;
         this.softDropDelay = 50;
+    }
+
+    // Level-based gravity system (converted from G values to milliseconds)
+    getDropInterval(level) {
+        const gravityTable = {
+            1: 0.01667,   // ~60 seconds per cell
+            2: 0.021017,  // ~47.6 seconds per cell
+            3: 0.026977,  // ~37.1 seconds per cell
+            4: 0.035256,  // ~28.4 seconds per cell
+            5: 0.04693,   // ~21.3 seconds per cell
+            6: 0.06361,   // ~15.7 seconds per cell
+            7: 0.0879,    // ~11.4 seconds per cell
+            8: 0.1236,    // ~8.1 seconds per cell
+            9: 0.1775,    // ~5.6 seconds per cell
+            10: 0.2598,   // ~3.8 seconds per cell
+            11: 0.388,    // ~2.6 seconds per cell
+            12: 0.59,     // ~1.7 seconds per cell
+            13: 0.92,     // ~1.1 seconds per cell
+            14: 1.46,     // ~0.68 seconds per cell
+            15: 2.36      // ~0.42 seconds per cell
+        };
+        
+        const gravity = gravityTable[Math.min(level, 15)] || 2.36;
+        // Convert G (cells per frame at 60fps) to milliseconds per cell
+        return Math.max(16, 1000 / (gravity * 60)); // Minimum 16ms (60fps cap)
     }
 
     init() {
@@ -107,19 +143,24 @@ class Tetris {
         } else {
             // Advance queue and use previously created nextPiece
             this.currentPiece = this.nextPiece;
-            this.queue.shift(); // ✅ REMOVE the piece that was used
+            this.queue.shift(); // Remove the piece that was used
         }
 
         this.fillQueue();         // Refill if needed
         this.generateNextPiece(); // Prepare next piece preview
         this.canHold = true;
 
+        // Reset lock delay state
+        this.lockDelayTimer = 0;
+        this.lockDelayActive = false;
+        this.lockDelayMoves = 0;
+        this.isGrounded = false;
+
         if (this.hasCollision(this.currentPiece)) {
             this.gameOver = true;
             this.showGameOver();
         }
     }
-
 
     generateNextPiece() {
         this.nextPiece = this.createPiece(this.queue[0]);
@@ -149,6 +190,11 @@ class Tetris {
         return false;
     }
 
+    // Check if piece is grounded (can't move down)
+    isPieceGrounded(piece) {
+        return this.hasCollision(piece, 0, 1);
+    }
+
     // === PIECE MOVEMENT ===
     movePiece(dx, dy) {
         if (!this.currentPiece || this.gameOver || this.paused) return false;
@@ -156,12 +202,18 @@ class Tetris {
         if (!this.hasCollision(this.currentPiece, dx, dy)) {
             this.currentPiece.x += dx;
             this.currentPiece.y += dy;
+            
+            // Reset lock delay on successful movement
+            if (this.lockDelayActive && (dx !== 0 || dy !== 0)) {
+                this.resetLockDelay();
+            }
+            
             return true;
         }
         
-        // If moving down failed, lock the piece
+        // If moving down failed, handle lock delay
         if (dy > 0) {
-            this.lockPiece();
+            this.handleGrounding();
         }
         
         return false;
@@ -181,6 +233,10 @@ class Tetris {
             this.currentPiece.x += kick;
             
             if (!this.hasCollision(this.currentPiece)) {
+                // Reset lock delay on successful rotation
+                if (this.lockDelayActive) {
+                    this.resetLockDelay();
+                }
                 return; // Successful rotation
             }
             
@@ -213,10 +269,11 @@ class Tetris {
             dropDistance++;
         }
         
-        this.score += dropDistance * 2;
+        this.score += dropDistance * 2; // Hard drop scoring
+        this.lockPiece(); // Immediately lock after hard drop
     }
 
-   holdPiece() {
+    holdPiece() {
         if (!this.canHold || !this.currentPiece || this.gameOver || this.paused) return;
 
         const held = this.heldType;
@@ -232,6 +289,50 @@ class Tetris {
 
         this.canHold = false;
         this.updateHoldDisplay();
+
+        // Reset lock delay state
+        this.lockDelayTimer = 0;
+        this.lockDelayActive = false;
+        this.lockDelayMoves = 0;
+        this.isGrounded = false;
+    }
+
+    // === LOCK DELAY SYSTEM ===
+    handleGrounding() {
+        if (!this.isGrounded) {
+            this.isGrounded = true;
+            this.lockDelayActive = true;
+            this.lockDelayTimer = this.lockDelayDuration;
+            this.lockDelayMoves = 0;
+        }
+    }
+
+    resetLockDelay() {
+        if (this.lockDelayMoves < this.maxLockDelayMoves) {
+            this.lockDelayTimer = this.lockDelayDuration;
+            this.lockDelayMoves++;
+        }
+    }
+
+    updateLockDelay(deltaTime) {
+        if (!this.lockDelayActive || !this.currentPiece) return;
+
+        // Check if piece is still grounded
+        if (!this.isPieceGrounded(this.currentPiece)) {
+            this.lockDelayActive = false;
+            this.isGrounded = false;
+            this.lockDelayTimer = 0;
+            this.lockDelayMoves = 0;
+            return;
+        }
+
+        // Update timer
+        this.lockDelayTimer -= deltaTime;
+
+        // Lock piece if timer expires or max moves reached
+        if (this.lockDelayTimer <= 0 || this.lockDelayMoves >= this.maxLockDelayMoves) {
+            this.lockPiece();
+        }
     }
 
     // === PIECE LOCKING AND LINE CLEARING ===
@@ -270,11 +371,63 @@ class Tetris {
         
         if (linesCleared > 0) {
             this.lines += linesCleared;
-            const linePoints = [0, 40, 100, 300, 1200];
-            this.score += linePoints[linesCleared] * this.level;
-            this.level = Math.floor(this.lines / 10) + 1;
-            this.dropInterval = Math.max(50, 1000 - (this.level - 1) * 50);
+            
+            // Calculate score using modern Tetris scoring
+            this.calculateScore(linesCleared);
+            
+            // Update level based on lines (faster progression)
+            this.level = Math.floor(this.lines / 5) + 1; // Level up every 5 lines instead of 10
+            this.dropInterval = this.getDropInterval(this.level);
+            
+            // Reset combo
+            this.combo++;
+        } else {
+            // No lines cleared, reset combo
+            this.combo = 0;
         }
+    }
+
+    calculateScore(linesCleared) {
+        let baseScore = 0;
+        let isDifficult = false;
+
+        // Base scoring (ignoring T-spins as requested)
+        switch (linesCleared) {
+            case 1: // Single
+                baseScore = 100;
+                break;
+            case 2: // Double
+                baseScore = 300;
+                break;
+            case 3: // Triple
+                baseScore = 500;
+                break;
+            case 4: // Tetris
+                baseScore = 800;
+                isDifficult = true;
+                break;
+        }
+
+        // Apply level multiplier
+        let lineScore = baseScore * this.level;
+
+        // Back-to-back bonus for difficult clears
+        if (isDifficult) {
+            if (this.backToBackDifficult) {
+                lineScore = Math.floor(lineScore * 1.5);
+            }
+            this.backToBackDifficult = true;
+        } else {
+            this.backToBackDifficult = false;
+        }
+
+        // Combo bonus
+        if (this.combo > 1) {
+            const comboScore = 50 * (this.combo - 1) * this.level;
+            lineScore += comboScore;
+        }
+
+        this.score += lineScore;
     }
 
     // === GHOST PIECE ===
@@ -425,6 +578,12 @@ class Tetris {
 
         const secondsElapsed = Math.floor((performance.now() - this.gameStartTime) / 1000);
         document.getElementById('time').textContent = secondsElapsed;
+        
+        // Add combo display if element exists
+        const comboElement = document.getElementById('combo');
+        if (comboElement) {
+            comboElement.textContent = this.combo > 1 ? `Combo: ${this.combo}` : '';
+        }
     }
 
     showGameOver() {
@@ -480,11 +639,16 @@ class Tetris {
     update(deltaTime) {
         this.handleInput(deltaTime);
         
-        // Auto drop
-        this.dropCounter += deltaTime;
-        if (this.dropCounter >= this.dropInterval) {
-            this.movePiece(0, 1);
-            this.dropCounter = 0;
+        // Update lock delay
+        this.updateLockDelay(deltaTime);
+        
+        // Auto drop (only if not in lock delay)
+        if (!this.lockDelayActive) {
+            this.dropCounter += deltaTime;
+            if (this.dropCounter >= this.dropInterval) {
+                this.movePiece(0, 1);
+                this.dropCounter = 0;
+            }
         }
         
         this.updateGameDisplay();
@@ -505,7 +669,7 @@ class Tetris {
         // Soft drop
         if (this.keys['ArrowDown'] && now - this.lastDropTime > this.softDropDelay) {
             if (this.movePiece(0, 1)) {
-                this.score += 1;
+                this.score += 1; // Soft drop scoring
             }
             this.lastDropTime = now;
         }
@@ -522,29 +686,33 @@ class Tetris {
     }
 
     handleKeyDown(e) {
+        const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'c', 'C', 'p', 'P', 'r', 'R'];
+        if (gameKeys.includes(e.key)) {
+            e.preventDefault(); // prevent scrolling for game keys
+        }
+
         // Game over restart
         if (this.gameOver && (e.key === 'r' || e.key === 'R')) {
             this.restart();
             return;
         }
-        
+
         // Pause toggle
         if (e.key === 'p' || e.key === 'P') {
             this.togglePause();
             return;
         }
-        
+
         if (this.gameOver || this.paused) return;
-        
+
         this.keys[e.key] = true;
-        
+
         // Handle single-press actions
         switch (e.key) {
             case 'ArrowUp':
                 this.rotatePiece();
                 break;
             case ' ':
-                e.preventDefault();
                 this.hardDrop();
                 break;
             case 'c':
