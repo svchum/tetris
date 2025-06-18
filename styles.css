@@ -1,13 +1,14 @@
 body {
     margin: 0;
     padding: 20px;
-    background: #222;
-    color: white;
-    font-family: Arial, sans-serif;
+    background: #141111; 
+    color: rgb(255, 255, 255);
+    font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    overflow: hidden;
 }
 
 /* === Layout === */
@@ -28,20 +29,32 @@ body {
     text-align: right;
 }
 
+.hold-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
 .sidebar.right {
     align-items: flex-start;
     text-align: left;
 }
 
 canvas {
-    border: 2px solid #fff;
+    border: 2px solid #f1a9eb;
     background: #000;
 }
 
 /* === Game Info === */
-.score {
-    font-size: 18px;
-    line-height: 1.6;
+.score-info {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
 }
 
 .controls {
@@ -51,9 +64,9 @@ canvas {
 
 /* === Buttons === */
 .pause-button {
-    background: #444;
-    color: white;
-    border: 2px solid #fff;
+    background: #f09fc7;
+    color: rgb(0, 0, 0);
+    border: 2px solid #ffffff;
     padding: 10px 15px;
     cursor: pointer;
     font-size: 14px;
@@ -63,11 +76,11 @@ canvas {
 }
 
 .pause-button:hover {
-    background: #666;
+    background: #e6e6e6;
 }
 
 .pause-button:active {
-    background: #333;
+    background: #666666;
 }
 
 /* === Overlays === */
@@ -79,7 +92,7 @@ canvas {
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.9);
     padding: 30px;
-    border: 2px solid #fff;
+    border: 2px solid #eca3da;
     text-align: center;
     display: none;
     border-radius: 10px;
@@ -116,16 +129,17 @@ canvas {
 
 .start-box {
     text-align: center;
-    color: white;
+    color: rgb(243, 166, 243);
 }
 
 #startBtn {
     padding: 12px 24px;
     font-size: 18px;
     cursor: pointer;
-    background-color: #444;
+    background-color: #ffffff;
+    font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
     border: 2px solid white;
-    color: white;
+    color: rgb(0, 0, 0);
     border-radius: 8px;
 }
 

@@ -1,53 +1,53 @@
 // Tetris pieces (tetrominoes) definitions
 // Each piece has a shape matrix and color
 const PIECES = {
-    I: {
+    I: {// cyan
         shape: [
             [1,1,1,1]
         ],
-        color: '#00f0f0'
+        color: '#79f1d5'
     },
-    O: {
+    O: {// yellow
         shape: [
             [1,1],
             [1,1]
         ],
-        color: '#f0f000'
+        color: '#f9f97e'
     },
-    T: {
+    T: {//  purple
         shape: [
             [0,1,0],
             [1,1,1]
         ],
-        color: '#a000f0'
+        color: '#9b93f6'
     },
-    S: {
+    S: {//green
         shape: [
             [0,1,1],
             [1,1,0]
         ],
-        color: '#00f000'
+        color: '#8DDD63'
     },
-    Z: {
+    Z: {//red
         shape: [
             [1,1,0],
             [0,1,1]
         ],
-        color: '#f00000'
+        color: '#fd414b'
     },
-    J: {
+    J: {//blue
         shape: [
             [1,0,0],
             [1,1,1]
         ],
-        color: '#0000f0'
+        color: '#6378fb'
     },
-    L: {
+    L: { //orange
         shape: [
             [0,0,1],
             [1,1,1]
         ],
-        color: '#f0a000'
+        color: '#f67a4e'
     }
 };
 

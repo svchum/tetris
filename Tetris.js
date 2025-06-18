@@ -449,20 +449,16 @@ class Tetris {
     // === RENDERING ===
     draw() {
         this.clearCanvas(this.ctx, this.canvas);
-        
-        // Draw board
+        this.drawGrid(); // <== Add this line here
+
         this.drawBoard();
-        
-        // Draw ghost piece
+
         if (this.currentPiece) {
             this.drawGhostPiece();
-        }
-        
-        // Draw current piece
-        if (this.currentPiece) {
             this.drawPiece(this.ctx, this.currentPiece, BLOCK_SIZE);
         }
     }
+
 
     drawBoard() {
         for (let y = 0; y < BOARD_HEIGHT; y++) {
@@ -476,6 +472,28 @@ class Tetris {
             }
         }
     }
+    // Draw grid lines
+    drawGrid() {
+        this.ctx.strokeStyle = '#333'; // Grid line color
+        this.ctx.lineWidth = 1;
+
+        for (let x = 0; x <= BOARD_WIDTH; x++) {
+            const px = x * BLOCK_SIZE;
+            this.ctx.beginPath();
+            this.ctx.moveTo(px, 0);
+            this.ctx.lineTo(px, BOARD_HEIGHT * BLOCK_SIZE);
+            this.ctx.stroke();
+        }
+
+        for (let y = 0; y <= BOARD_HEIGHT; y++) {
+            const py = y * BLOCK_SIZE;
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, py);
+            this.ctx.lineTo(BOARD_WIDTH * BLOCK_SIZE, py);
+            this.ctx.stroke();
+        }
+    }
+
 
     drawGhostPiece() {
         const ghost = this.getGhostPiece();
@@ -576,8 +594,11 @@ class Tetris {
         document.getElementById('lines').textContent = this.lines;
         document.getElementById('level').textContent = this.level;
 
-        const secondsElapsed = Math.floor((performance.now() - this.gameStartTime) / 1000);
-        document.getElementById('time').textContent = secondsElapsed;
+        const totalSeconds = Math.floor((performance.now() - this.gameStartTime) / 1000);
+        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+        document.getElementById('time').textContent = `${minutes}:${seconds}`;
+
         
         // Add combo display if element exists
         const comboElement = document.getElementById('combo');

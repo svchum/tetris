@@ -10,49 +10,55 @@
   <!-- Start Screen Overlay -->
   <div id="startOverlay" class="start-overlay">
     <div class="start-box">
-      <h1>Tetris</h1>
+      <h1>TETRIS</h1>
       <button id="startBtn">Start Game</button>
     </div>
   </div>
 
   <!-- Main Game Wrapper -->
   <div class="game-wrapper">
-    <!-- Left Sidebar -->
-    <div class="sidebar left">
-      <div class="score">
-        <div>Score: <span id="score">0</span></div>
-        <div>Lines: <span id="lines">0</span></div>
-        <div>Level: <span id="level">1</span></div>
-        <div>Time: <span id="time">0</span>s</div>
-      </div>
-      <div class="controls">
-        <div><strong>Controls:</strong></div>
-        <div>← → Move</div>
-        <div>↑ Rotate</div>
-        <div>↓ Soft Drop</div>
-        <div>Space Hard Drop</div>
-        <div>C Hold</div>
-        <div>P Pause</div>
-        <div>R Restart</div>
-      </div>
-      <button id="pauseBtn" class="pause-button">Pause (P)</button>
-    </div>
-
-    <!-- Game Canvas -->
-    <canvas id="gameCanvas" width="300" height="600"></canvas>
-
-    <!-- Right Sidebar -->
-    <div class="sidebar right">
-      <div>
-        <div>Next:</div>
-        <canvas id="nextCanvas" width="120" height="360"></canvas>
-      </div>
-      <div>
-        <div>Hold:</div>
-        <canvas id="holdCanvas" width="120" height="120"></canvas>
-      </div>
-    </div>
+  <!-- Hold on top left -->
+  <div class="sidebar left">
+  <div class="hold-wrapper">
+    <label class="section-title">Hold:</label>
+    <canvas id="holdCanvas" width="120" height="120"></canvas>
   </div>
+
+  <div class="score-info">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lines: <span id="lines">0</span></div>
+    <div>Level: <span id="level">1</span></div>
+    <div>Time: <span id="time">0</span></div>
+    <button id="pauseBtn" class="pause-button">Pause (P)</button>
+  </div>
+</div>
+
+
+
+
+  <!-- Main game -->
+  <canvas id="gameCanvas" width="300" height="600"></canvas>
+
+  <!-- Right side: next and controls -->
+  <div class="sidebar right">
+    <div>
+      <div>Next:</div>
+      <canvas id="nextCanvas" width="120" height="350"></canvas>
+    </div>
+    <div class="controls">
+      <div><strong>Controls:</strong></div>
+      <div>← → Move</div>
+      <div>↑ Rotate</div>
+      <div>↓ Soft Drop</div>
+      <div>Space Hard Drop</div>
+      <div>C Hold</div>
+      <div>P Pause</div>
+      <div>R Restart</div>
+    </div>
+   
+  </div>
+</div>
+
 
   <!-- Game Over Popup -->
   <div class="game-over" id="gameOver">
