@@ -1,2 +1,4 @@
-# tetris
-simple tetris game
+# Tetris
+
+https://svchum.github.io/tetris/ 
+
